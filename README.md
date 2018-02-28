@@ -1,2 +1,2 @@
-# Experiments---deep-learning
-My different deep learning experiments with Keras, Gensim
+# Deep-learning-tasks
+My different deep learning tasks with Keras, Gensim
