@@ -1,0 +1,268 @@
+## MODEL 1
+## ======================================================================================================================================================
+    batch_size_ = 64   # 64
+
+    model = Sequential()
+    # --------------------------------------------------------------------------------------
+    # ---- Embedding layer -----------------------------------------------------------------
+    embedding_layer = Embedding(top_words, 
+                                embedding_vecor_length, 
+                                weights=[embedding_matrix], 
+                                input_length = max_description_length,
+                                trainable=False)
+    model.add(embedding_layer)
+
+    ## LSTM 1
+    ## ======================================================================================
+    LSTM_1 = LSTM(128,return_sequences=False)
+    model.add(LSTM_1)
+
+    ## Output classes layer
+    ## ======================================================================================
+    model.add(Dense(len(nb_classes), activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+    print(model.summary())
+
+
+## if uses embeddings: word2vect_class_specififc_unigrams__vec64_win1__dict_sample_5000 
+    Accuracy: loss: 0.2879 - acc: 0.9090
+    Valid accuracy: 0.915107423227
+
+    with BatchNormalization():
+    Accuracy: loss: 0.2261 - acc: 0.9266
+    Valid accuracy:  0.936953164112
+## if uses embeddings: word2vect_unigrams_interrelations__vec64_win1__dict_sample_5000 
+    Accuracy: loss: 0.4661 - acc: 0.8634
+    Valid accuracy: 0.868483505714
+## if uses embeddings: fasttext__vec64_win5__dict_sampled_5000.vec
+    Accuracy: loss: 0.4321 - acc: 0.8709
+    Valid accuracy: 0.8792300
+
+## if uses embeddings: fasttext__vec128_win1__dict_sampled_5000.vec
+    Accuracy: loss: loss: 0.3771 - acc: 0.8851 
+    Valid accuracy: 0.898277606757
+
+
+
+
+## MODEL 2
+## Attention
+## ======================================================================================================================================================
+
+batch_size_ = 64   # 64
+
+model = Sequential()
+# --------------------------------------------------------------------------------------
+# ---- Embedding layer -----------------------------------------------------------------
+embedding_layer = Embedding(top_words, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix], 
+                            input_length = max_description_length,
+                            trainable=False)
+model.add(embedding_layer)
+
+## LSTM 1
+## ======================================================================================
+LSTM_1 = LSTM(128,return_sequences=True)
+model.add(LSTM_1)
+
+## Attention 1
+## ======================================================================================
+TimeDist_1 = TimeDistributed(Dense(200))  #, input_shape=(max_description_length, embedding_vecor_length)
+model.add(TimeDist_1)
+model.add(AttLayer())
+
+## Dense 1
+## ======================================================================================
+Dense_1 = Dense(128,activation='sigmoid')
+#model.add(Dense_1)
+
+## Output classes layer
+## ======================================================================================
+model.add(Dense(len(nb_classes), activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+print(model.summary())
+
+
+
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+embedding_1 (Embedding)          (None, 30, 64)        15036864    embedding_input_1[0][0]          
+____________________________________________________________________________________________________
+lstm_1 (LSTM)                    (None, 30, 128)       98816       embedding_1[0][0]                
+____________________________________________________________________________________________________
+timedistributed_1 (TimeDistribut (None, 30, 200)       25800       lstm_1[0][0]                     
+____________________________________________________________________________________________________
+attlayer_1 (AttLayer)            (None, 200)           200         timedistributed_1[0][0]          
+____________________________________________________________________________________________________
+dense_3 (Dense)                  (None, 398)           79998       attlayer_1[0][0]                 
+====================================================================================================
+
+
+Accuracy: loss: 0.2722 - acc: 0.9140
+Valid accuracy:  0.91873115966
+
+
+## MODEL 3
+## ======================================================================================================================================================
+
+batch_size_ = 64   # 64
+
+model = Sequential()
+# --------------------------------------------------------------------------------------
+# ---- Embedding layer -----------------------------------------------------------------
+embedding_layer = Embedding(top_words, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix], 
+                            input_length = max_description_length,
+                            trainable=False)
+model.add(embedding_layer)
+
+## LSTM 1
+## ======================================================================================
+LSTM_1 = LSTM(128,return_sequences=True)
+# model.add(LSTM_1)
+
+## Attention 1
+## ======================================================================================
+TimeDist_1 = TimeDistributed(Dense(200))  #, input_shape=(max_description_length, embedding_vecor_length)
+model.add(TimeDist_1)
+#model.add(AttentionWithContext())
+
+LSTM_2 = LSTM(128,return_sequences=False)
+model.add(LSTM_2)
+
+## Dense 1
+## ======================================================================================
+Dense_1 = Dense(128,activation='sigmoid')
+#model.add(Dense_1)
+
+## Output classes layer
+## ======================================================================================
+model.add(Dense(len(nb_classes), activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+print(model.summary())
+
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+embedding_8 (Embedding)          (None, 30, 64)        15036864    embedding_input_8[0][0]          
+____________________________________________________________________________________________________
+timedistributed_8 (TimeDistribut (None, 30, 200)       13000       embedding_8[0][0]                
+____________________________________________________________________________________________________
+lstm_11 (LSTM)                   (None, 128)           168448      timedistributed_8[0][0]          
+____________________________________________________________________________________________________
+dense_20 (Dense)                 (None, 398)           51342       lstm_11[0][0]                    
+====================================================================================================
+
+
+Accuracy: loss: 0.2677 - acc: 0.9152
+Valid accuracy:  0.923365750258
+
+
+## MODEL 4
+## ======================================================================================================================================================
+
+batch_size_ = 64   # 64
+
+model = Sequential()
+# --------------------------------------------------------------------------------------
+# ---- Embedding layer -----------------------------------------------------------------
+embedding_layer = Embedding(top_words, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix], 
+                            input_length = max_description_length,
+                            trainable=False)
+model.add(embedding_layer)
+
+## LSTM 1
+## ======================================================================================
+LSTM_1 = LSTM(128,return_sequences=True, activation='softmax')
+model.add(LSTM_1)
+
+## Attention 1
+## ======================================================================================
+TimeDist_1 = TimeDistributed(Dense(200))  #, input_shape=(max_description_length, embedding_vecor_length)
+model.add(TimeDist_1)
+#model.add(AttentionWithContext())
+
+LSTM_2 = LSTM(128,return_sequences=False)
+model.add(LSTM_2)
+
+## Output classes layer
+## ======================================================================================
+model.add(Dense(len(nb_classes), activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+print(model.summary())
+
+# Fails with acc: 0.0636
+
+## MODEL 5
+## ======================================================================================================================================================
+
+batch_size_ = 64   # 64
+
+model = Sequential()
+# --------------------------------------------------------------------------------------
+# ---- Embedding layer -----------------------------------------------------------------
+embedding_layer = Embedding(top_words, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix], 
+                            input_length = max_description_length,
+                            trainable=False)
+model.add(embedding_layer)
+
+## LSTM 1
+## ======================================================================================
+LSTM_1 = LSTM(128,return_sequences=True)
+#model.add(LSTM_1)
+
+## Attention 1
+## ======================================================================================
+TimeDist_1 = TimeDistributed(Dense(200))  #, input_shape=(max_description_length, embedding_vecor_length)
+model.add(TimeDist_1)
+#model.add(AttLayer())
+#model.add(AttentionWithContext())
+
+LSTM_2 = LSTM(128,return_sequences=True)
+model.add(LSTM_2)
+model.add(AttentionWithContext())
+## Output classes layer
+## ======================================================================================
+model.add(Dense(len(nb_classes), activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+print(model.summary())
+
+
+Fails with acc: 0.0268
+
+
+## MODEL misc
+## ======================================================================================================================================================
+
+batch_size_ = 64   # 64
+
+model = Sequential()
+# --------------------------------------------------------------------------------------
+# ---- Embedding layer -----------------------------------------------------------------
+embedding_layer = Embedding(top_words, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix], 
+                            input_length = max_description_length,
+                            trainable=False)
+model.add(embedding_layer)
+
+## LSTM 1
+## ======================================================================================
+LSTM_1 = LSTM(128,return_sequences=True)
+#model.add(LSTM_1)
+
+## Attention 1
+## ======================================================================================
+TimeDist_1 = TimeDistributed(Dense(200))  #, input_shape=(max_description_length, embedding_vecor_length)
+model.add(TimeDist_1)
+#model.add(AttLayer())
+#model.add(AttentionWithContext())
+
+in place where I tried AttLayer() and AttentionWithContext() one by one, AttentionWithContext() works better by 0.04 points higher in accuracy.

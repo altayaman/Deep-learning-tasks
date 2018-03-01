@@ -1,0 +1,4 @@
+item descriptions from descriptionary are lower cased and kept only characters from the following list 
+'abcdefghijklmnopqrstuvwxyz0123456789 '
+
+Will need to process item descriptions accordingly, when embeddings from current word2vec model will be used.

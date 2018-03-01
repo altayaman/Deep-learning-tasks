@@ -1,0 +1,3 @@
+item descriptions from descriptionary are lower cased and only alphanums are kept. Additionally take a look at NGramGenerator_wordwise_interval function in word2vec_train.py to see how tokens were processed before being split.
+
+Will need to process item descriptions accordingly, when embeddings from current word2vec model will be used.

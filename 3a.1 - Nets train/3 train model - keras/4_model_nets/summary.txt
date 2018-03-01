@@ -1,0 +1,27 @@
+
+
+
+batch_size_ = 64
+
+model = Sequential()
+# --------------------------------------------------------------------------------------
+# ---- Embedding layer -----------------------------------------------------------------
+embedding_layer = Embedding(top_words, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix], 
+                            input_length = max_description_length,
+                            trainable=False)
+model.add(embedding_layer)
+## LSTM 1  ==============================================================================
+## ======================================================================================
+LSTM_1 = LSTM(128)
+model.add(LSTM_1)
+
+
+## Output classes layer  ================================================================
+## ======================================================================================
+model.add(Dense(len(nb_classes), activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+
+
+Accuracy: 0.8348

@@ -1,0 +1,54 @@
+# define/initialize model
+top_words_unigrams = len(word_index_unigrams) + 1
+top_words_bigrams = len(word_index_bigrams) + 1
+batch_size_ = 64   # 64
+
+## Model 1 (LSTM)
+## ======================================================================================
+model_1_lstm = Sequential()
+## Embedding layer
+embedding_layer_unigrams = Embedding(top_words_unigrams, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix_unigrams], 
+                            input_length = max_description_length,
+                            trainable=False)
+model_1_lstm.add(embedding_layer_unigrams)
+
+## LSTM 1
+LSTM_1 = LSTM(128,return_sequences=True)
+model_1_lstm.add(LSTM_1)
+
+
+## Model 2 (LSTM)
+## ======================================================================================
+model_2_lstm = Sequential()
+## Embedding layer
+embedding_layer_bigrams = Embedding(top_words_bigrams, 
+                            embedding_vecor_length, 
+                            weights=[embedding_matrix_bigrams], 
+                            input_length = max_description_length,
+                            trainable=False)
+model_2_lstm.add(embedding_layer_bigrams)
+## LSTM 1
+LSTM_2 = LSTM(128,return_sequences=True)
+model_2_lstm.add(LSTM_1)
+
+
+## Merge models
+## ======================================================================================
+model_merge = Sequential()
+merge_layer = Merge([model_1_lstm,model_2_lstm], mode='concat')
+model_merge.add(merge_layer)
+model_merge.add(LSTM(128,return_sequences=False))
+
+
+## Output classes layer
+## ======================================================================================
+model_merge.add(Dense(len(nb_classes), activation='softmax'))
+model_merge.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])  # try loss=categorical_crossentropy
+print(model_merge.summary())
+
+
+
+Accuracy: loss: 0.0364 - acc: 0.9871
+Valid accuracy:  0.989302414759

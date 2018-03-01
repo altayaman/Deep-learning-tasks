@@ -1,0 +1,16 @@
+Goal:
+To find approach of finding missing items belonging to certain node.
+
+# 1
+In previous experiments, we trained models on training set of random nodes (dipaering and screwdrivers). In those experiments our train sets were a bit weak, where false positives were items which were missclassified by CME.
+
+In this experiment we will fallow the same logic where we will train models to find missing items, but this time our train sets will contain data from all nodes as false positive.
+
+The train set will be created from Descriptionary which is about 20mln items. It is too huge for training on local machine and overall. So instead of taking all items from descriptonary as train set, we will try to take a portion of data from each node which will be a much smaller train set than the whole descriptonary. And so another aspect of this is that a small portion of data from a node should represent the whole data from a node. E.g. if a node in descriptonary has 100000 items, and if we decide to take only 10000 items from it, then those 10000 items should be a good representative of 100000 items. So our first step should be creating a good reprentative train set from each node. And for that we will first cluster the items from each node and will pick some random items from each cluster of items of each node.
+
+The folder number 1 has IPython code that exports each node items into separate csv file into folder 1.1.
+
+Then our R code will cluster the items from each csv file using hclustering. As R can not handle large file for clustering, we desided to take a sample the other way.
+For that we sort each csv file and divide the rows into needed sample size and take one item from each part. 
+Ex: If we need 100 items as a sample from 10000 items csv file, we sort the file and divide 10000 by 100 where we get 100 parts. Then pick 1 items from each part. Because after sorting the file, the similar items are sorted one after another creating a sorted clusters. Then when we do the sampling process it is more likely that we get at least one representative item from each cluster. And of course, example shows sample as 100 out of 10000, consequently the larger tha sample size the more likely we touch more clusters which makes a good representative sample data.
+

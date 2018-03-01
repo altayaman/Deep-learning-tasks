@@ -1,0 +1,13 @@
+This folder has trained word2vec models. Models are trained on sampled descriptionary which are coming from
+"/train data from descriptionary nodes by sampling/3 - Picking samples from each node/" folder.
+
+#1
+Trained models are stored in folders with names "model_word2vect_ ..." enumerated. Each folder should contain trained model and the python code that generated the model itself. The folder names also contain some additional meta info about trained models. 
+
+For ex: 
+vec64 means word embedding vector length is 64.
+win1 means window size for training was 1.
+dict_sample_5000 means model was trained on descriptionary sample 5000 (e.g. 5000 items were took from each descriptionary node).
+
+#2
+The "codes" folder just contains the code for training word2vec models.

@@ -1,0 +1,78 @@
+Goal:
+To find approach of finding missing items belonging to certain node.
+
+Experimental solution:
+Train model on all diapering nodes from scorecards_basetable_history and
+test model on scorecards_basetable_current data where model will provide predictions and probabilities for each item description.
+We want to see wether there will be a certain standart probability treshold above which items will be missing items.
+
+Note:
+Diapering nodes were picked randomly.
+For some reasons diapering parent node had 2 children nodes only (e.g. 211,213).
+
+
+-- ========================================================================================================================
+-- Train set for diapering
+
+select distinct type, description_mod1, category_id_mod1, category_full_path_mod1
+into 
+	infoprod.altay_diapering_020517_trainset
+from 
+(
+	select
+	case 
+		when inclusion_reason in ('Category Include','Category Include Description') and exclusion_reason is null then 'False Negative'
+		when exclusion_reason in ('Miscategorized') then 'False Positive'
+		when (inclusion_reason is null or inclusion_reason in ('Scraped Category','Scraped Category & Brand','Scraped Brand')) 
+			 and exclusion_reason is null then 'True Positive'
+		else 'Other'
+		end as type,
+	description_mod1, category_id_mod1, category_full_path_mod1
+	-- merchant_id, merchant_name, brand_l1_name_mod1, exclusion_reason, inclusion_reason, cast(null as BIGINT) as cme_category_id
+	from infoprod_ops.scorecards_basetable_history
+	where 
+	production_date = '2016-11-04 00:00:00' and
+	category_id_mod1 in (209,210,211,212,213,214,215)
+	and (exclusion_reason is null or exclusion_reason in ('Miscategorized'))
+	and (do_use = 'Y' or do_use is null)
+) t
+
+
+-- ========================================================================================================================
+-- Test set
+
+select description_mod1, category_id_mod1, category_full_path_mod1, order_date, exclusion_reason, inclusion_reason
+into 
+	infoprod.altay_scorecards_201701_testset_curr_tbl
+from infoprod_ops.scorecards_basetable_current
+where order_date >= '2017-01-01'
+GROUP BY description_mod1, category_id_mod1, category_full_path_mod1, order_date, exclusion_reason, inclusion_reason
+
+
+-- ========================================================================================================================
+-- Table for prediction results
+
+CREATE TABLE infoprod.altay_predictions_1 
+(
+	description_mod1 varchar(2000),
+	predicted_category varchar(10),
+	probability float8
+)
+
+grant insert on infoprod.altay_predictions_1 to public
+
+
+-- ========================================================================================================================
+-- CHECK PREDICTIONS for disposable diapers
+
+select distinct a.*,b.category_full_path_mod1
+from infoprod.altay_predictions_1 a
+left join infoprod.altay_scorecards_201701_testset_curr_tbl b
+on a.description_mod1 = b.description_mod1
+WHERE
+	b.category_id_mod1 != 213 and
+	a.predicted_category ilike '%213%' and
+	a.predicted_category not ilike '%927%'
+order by a.probability desc, a.description_mod1, a.predicted_category
+
+
